@@ -1,160 +1,154 @@
 (function () {
-  const UI_REPLACEMENTS = new Map([
-    ['Chats', 'שיחות'],
-    ['New Chat', 'צ׳אט חדש'],
-    ['Search messages', 'חיפוש הודעות'],
-    ['Search conversations', 'חיפוש שיחות'],
-    ['Temporary Chat', 'צ׳אט זמני'],
-    ['Bookmarks', 'סימניות'],
-    ['Prompts', 'הנחיות'],
-    ['Agents', 'סוכנים'],
-    ['Parameters', 'פרמטרים'],
-    ['Custom instructions', 'הוראות מותאמות אישית'],
-    ['Set custom instructions for ChatGPT', 'הגדר הוראות מותאמות אישית עבור ChatGPT'],
-    ['System', 'מערכת'],
-    ['Model', 'מודל']
+  'use strict';
+
+  /* === Hebrew UI text replacements === */
+  var HEBREW_UI_REPLACEMENTS = new Map([
+    ['Chats', '\u05E9\u05D9\u05D7\u05D5\u05EA'],
+    ['New Chat', '\u05E6\u05F3\u05D0\u05D8 \u05D7\u05D3\u05E9'],
+    ['Search messages', '\u05D7\u05D9\u05E4\u05D5\u05E9 \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA'],
+    ['Search conversations', '\u05D7\u05D9\u05E4\u05D5\u05E9 \u05E9\u05D9\u05D7\u05D5\u05EA'],
+    ['Temporary Chat', '\u05E6\u05F3\u05D0\u05D8 \u05D6\u05DE\u05E0\u05D9'],
+    ['Bookmarks', '\u05E1\u05D9\u05DE\u05E0\u05D9\u05D5\u05EA'],
+    ['Prompts', '\u05D4\u05E0\u05D7\u05D9\u05D5\u05EA'],
+    ['Agents', '\u05E1\u05D5\u05DB\u05E0\u05D9\u05DD'],
+    ['Parameters', '\u05E4\u05E8\u05DE\u05D8\u05E8\u05D9\u05DD'],
+    ['Custom instructions', '\u05D4\u05D5\u05E8\u05D0\u05D5\u05EA \u05DE\u05D5\u05EA\u05D0\u05DE\u05D5\u05EA \u05D0\u05D9\u05E9\u05D9\u05EA'],
+    ['System', '\u05DE\u05E2\u05E8\u05DB\u05EA'],
+    ['Model', '\u05DE\u05D5\u05D3\u05DC']
   ]);
 
-  const TECHNICAL_SELECTORS = [
-    'pre',
-    'code',
-    '.font-mono',
-    '[class*="font-mono"]',
-    '[class*="hljs"]',
-    '[class*="language-"]',
-    '[data-model-name]',
-    '.model-name',
-    '.version-string',
-    '.api-token',
-    '.crm-token'
-  ];
+  /* === Selectors for elements that must stay LTR === */
+  var LTR_SELECTORS = 'pre, code, svg, .font-mono, [class*="font-mono"], [class*="hljs"], [class*="language-"]';
 
-  const AUTO_CONTENT_SELECTORS = [
-    '[data-message-id]',
-    '.prose',
-    '.markdown',
-    '[data-testid*="conversation"]',
-    '[data-testid*="chat"]',
-    '[data-testid*="message"]',
-    'textarea',
-    '[contenteditable="true"]'
-  ];
+  /* === Selectors for English fragments needing bidi isolation === */
+  var ISOLATE_SELECTORS = '[data-model-name], [data-testid*="model"], .model-name';
 
-  function hasHebrew(text) {
-    return /[\u0590-\u05FF]/.test(text || '');
-  }
-
-  function hasLatinOrDigits(text) {
-    return /[A-Za-z0-9]/.test(text || '');
-  }
-
-  function isTechnicalLeaf(el) {
-    return el.closest('pre, code') || el.matches(TECHNICAL_SELECTORS.join(','));
-  }
-
-  function forceShellRTL() {
+  /* === Force document-level RTL === */
+  function forceDocumentRTL() {
     document.documentElement.setAttribute('dir', 'rtl');
     document.documentElement.setAttribute('lang', 'he');
-    document.body.setAttribute('dir', 'rtl');
+    if (document.body) {
+      document.body.setAttribute('dir', 'rtl');
+    }
   }
 
-  function applyAutoToDynamicContent() {
-    document.querySelectorAll(AUTO_CONTENT_SELECTORS.join(',')).forEach((el) => {
-      if (isTechnicalLeaf(el)) return;
-      el.setAttribute('dir', 'auto');
-
-      if (el.matches('textarea, [contenteditable="true"]')) {
-        el.style.textAlign = 'right';
-      }
-    });
+  /* === Force RTL on all input fields === */
+  function forceRTLOnInputs() {
+    var inputs = document.querySelectorAll('input, textarea, [contenteditable="true"], select');
+    for (var i = 0; i < inputs.length; i++) {
+      var el = inputs[i];
+      el.setAttribute('dir', 'rtl');
+      el.style.textAlign = 'right';
+      el.style.direction = 'rtl';
+      el.style.unicodeBidi = 'plaintext';
+    }
   }
 
-  function isolateTechnicalFragments() {
-    document.querySelectorAll(TECHNICAL_SELECTORS.join(',')).forEach((el) => {
+  /* === Keep technical elements LTR === */
+  function keepTechnicalLTR() {
+    var elements = document.querySelectorAll(LTR_SELECTORS);
+    for (var i = 0; i < elements.length; i++) {
+      var el = elements[i];
       el.setAttribute('dir', 'ltr');
       el.style.direction = 'ltr';
       el.style.textAlign = 'left';
-      el.style.unicodeBidi = 'isolate';
+      el.style.unicodeBidi = 'embed';
+    }
+  }
 
-      const display = getComputedStyle(el).display;
-      if (display === 'inline') {
+  /* === Isolate English fragments (model names etc.) === */
+  function isolateEnglishFragments() {
+    var elements = document.querySelectorAll(ISOLATE_SELECTORS);
+    for (var i = 0; i < elements.length; i++) {
+      var el = elements[i];
+      el.setAttribute('dir', 'ltr');
+      el.style.direction = 'ltr';
+      el.style.unicodeBidi = 'isolate';
+      if (getComputedStyle(el).display === 'inline') {
         el.style.display = 'inline-block';
       }
-    });
+    }
   }
 
-  function translateLeafLabels() {
-    document.querySelectorAll('body *').forEach((el) => {
-      if (el.children.length) return;
-      if (isTechnicalLeaf(el)) return;
+  /* === Translate known UI text nodes using TreeWalker (efficient) === */
+  function translateUITextNodes() {
+    var walker = document.createTreeWalker(
+      document.body || document.documentElement,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
 
-      const text = (el.textContent || '').trim();
-      if (!text) return;
-
-      if (UI_REPLACEMENTS.has(text)) {
-        el.textContent = UI_REPLACEMENTS.get(text);
+    var node;
+    while ((node = walker.nextNode())) {
+      var text = node.nodeValue.trim();
+      if (text && HEBREW_UI_REPLACEMENTS.has(text)) {
+        node.nodeValue = HEBREW_UI_REPLACEMENTS.get(text);
       }
-    });
+    }
   }
 
-  function isolateMixedLeafNodes() {
-    document.querySelectorAll('body *').forEach((el) => {
-      if (el.children.length) return;
-      if (isTechnicalLeaf(el)) return;
-
-      const text = (el.textContent || '').trim();
-      if (!text) return;
-
-      if (hasHebrew(text) && hasLatinOrDigits(text)) {
-        el.setAttribute('dir', 'auto');
-        el.style.unicodeBidi = 'plaintext';
-      }
-    });
-  }
-
-  function improveInputs() {
-    document.querySelectorAll('input, textarea, [contenteditable="true"], select').forEach((el) => {
-      if (el.matches('textarea, [contenteditable="true"]')) {
-        el.setAttribute('dir', 'auto');
-      } else {
+  /* === Fix composer textarea specifically === */
+  function fixComposerText() {
+    var composers = document.querySelectorAll('textarea, [contenteditable="true"]');
+    for (var i = 0; i < composers.length; i++) {
+      var el = composers[i];
+      var aria = el.getAttribute('aria-label') || '';
+      if (aria.indexOf('Message') !== -1 || aria.indexOf('Send') !== -1) {
         el.setAttribute('dir', 'rtl');
+        el.style.textAlign = 'right';
       }
-
-      el.style.textAlign = 'right';
-    });
+    }
   }
 
-  let scheduled = false;
-
-  function applyAll() {
-    forceShellRTL();
-    improveInputs();
-    applyAutoToDynamicContent();
-    isolateTechnicalFragments();
-    translateLeafLabels();
-    isolateMixedLeafNodes();
-    scheduled = false;
+  /* === Move fixed left-side drawers to the right === */
+  function moveLikelyLeftDrawersToRight() {
+    var allElements = document.querySelectorAll('body > div, body > aside, body > nav');
+    for (var i = 0; i < allElements.length; i++) {
+      var el = allElements[i];
+      var style = getComputedStyle(el);
+      if (style.position === 'fixed') {
+        var left = style.left;
+        var right = style.right;
+        var width = parseFloat(style.width || '0');
+        if (left === '0px' && right === 'auto' && width > 220) {
+          el.style.left = 'auto';
+          el.style.right = '0';
+        }
+      }
+    }
   }
 
-  function scheduleApply() {
-    if (scheduled) return;
-    scheduled = true;
-    requestAnimationFrame(applyAll);
+  /* === Main apply function === */
+  function applyRTL() {
+    forceDocumentRTL();
+    forceRTLOnInputs();
+    keepTechnicalLTR();
+    isolateEnglishFragments();
+    translateUITextNodes();
+    fixComposerText();
+    moveLikelyLeftDrawersToRight();
   }
 
-  applyAll();
+  /* === Initial application === */
+  applyRTL();
 
-  const observer = new MutationObserver(() => {
-    scheduleApply();
+  /* === MutationObserver — watch for DOM changes === */
+  var debounceTimer = null;
+  var observer = new MutationObserver(function () {
+    if (debounceTimer) { clearTimeout(debounceTimer); }
+    debounceTimer = setTimeout(applyRTL, 100);
   });
 
   observer.observe(document.documentElement, {
     subtree: true,
     childList: true,
     attributes: true,
-    characterData: true
+    characterData: true,
+    attributeFilter: ['dir', 'lang']
   });
 
-  window.addEventListener('load', applyAll);
-  document.addEventListener('readystatechange', scheduleApply);
+  /* === Re-apply on load events === */
+  window.addEventListener('load', applyRTL);
+  document.addEventListener('readystatechange', applyRTL);
 })();
