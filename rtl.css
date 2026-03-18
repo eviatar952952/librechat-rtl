@@ -1,10 +1,13 @@
+/* === בסיס RTL === */
 html {
   direction: rtl;
 }
 
+/* === טקסט === */
 .text-left { text-align: right !important; }
 .text-right { text-align: left !important; }
 
+/* === מרג'ין הפוך === */
 .ml-auto { margin-left: unset !important; margin-right: auto !important; }
 .mr-auto { margin-right: unset !important; margin-left: auto !important; }
 .ml-1 { margin-left: 0 !important; margin-right: 0.25rem !important; }
@@ -16,6 +19,7 @@ html {
 .mr-3 { margin-right: 0 !important; margin-left: 0.75rem !important; }
 .mr-4 { margin-right: 0 !important; margin-left: 1rem !important; }
 
+/* === פדינג הפוך === */
 .pl-1 { padding-left: 0 !important; padding-right: 0.25rem !important; }
 .pl-2 { padding-left: 0 !important; padding-right: 0.5rem !important; }
 .pl-3 { padding-left: 0 !important; padding-right: 0.75rem !important; }
@@ -25,12 +29,14 @@ html {
 .pr-3 { padding-right: 0 !important; padding-left: 0.75rem !important; }
 .pr-4 { padding-right: 0 !important; padding-left: 1rem !important; }
 
+/* === מיקום הפוך === */
 .left-0 { left: unset !important; right: 0 !important; }
 .right-0 { right: unset !important; left: 0 !important; }
 
 .float-left { float: right !important; }
 .float-right { float: left !important; }
 
+/* === שדות קלט === */
 textarea,
 input[type="text"],
 input[type="email"],
@@ -39,6 +45,7 @@ input[type="search"] {
   text-align: right;
 }
 
+/* === קוד תמיד LTR === */
 pre, code, .prose pre, .prose code,
 [class*="hljs"], .markdown pre, .markdown code {
   direction: ltr !important;
@@ -47,4 +54,118 @@ pre, code, .prose pre, .prose code,
 
 ::-webkit-scrollbar {
   direction: ltr;
+}
+
+/* ============================================
+   תיקוני RTL ספציפיים ל-LibreChat
+   ============================================ */
+
+/* --- סליידרים: הפוך כיוון --- */
+input[type="range"] {
+  direction: ltr !important;
+  transform: scaleX(-1);
+}
+
+/* --- פאנל הגדרות: תוויות ליד סליידרים --- */
+.flex.items-center.justify-between {
+  direction: rtl !important;
+}
+
+/* --- שם מודל בטופבר --- */
+[class*="truncate"],
+button[class*="truncate"] {
+  direction: ltr !important;
+  unicode-bidi: embed !important;
+  text-align: right !important;
+}
+
+/* --- רשימת צ'אטים בסיידבר: יישור ימין --- */
+nav a,
+nav button,
+nav [role="button"] {
+  text-align: right !important;
+}
+
+nav a span,
+nav button span {
+  direction: rtl !important;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  text-align: right !important;
+}
+
+/* --- כפתורים בפאנל הגדרות --- */
+button[class*="btn"],
+button[type="submit"],
+button[type="button"] {
+  text-align: right !important;
+}
+
+/* --- Placeholder בשדה הקלדה --- */
+textarea::placeholder,
+input::placeholder {
+  text-align: right !important;
+  direction: rtl !important;
+}
+
+/* --- פאנל הגדרות: רוחב מתאים --- */
+[class*="panel"],
+[class*="Panel"],
+aside {
+  max-width: 280px;
+}
+
+/* --- תגובות הודעות: בועות --- */
+[data-message-id] {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+/* --- אייקוני פעולה בהודעות: שמור LTR --- */
+[data-message-id] .flex.gap-1,
+[data-message-id] .flex.gap-2,
+[data-message-id] [class*="action"] {
+  direction: ltr !important;
+  justify-content: flex-start !important;
+}
+
+/* --- פוטר תחתון --- */
+footer, [class*="footer"] {
+  direction: rtl !important;
+  text-align: center !important;
+}
+
+/* --- Tooltips --- */
+[role="tooltip"],
+[data-radix-popper-content-wrapper] {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+/* --- דרופדאון/מניו --- */
+[role="menu"],
+[role="listbox"],
+[class*="dropdown"],
+[class*="popover"] {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+/* --- Toggle switches: שמור LTR --- */
+[role="switch"],
+button[role="switch"] {
+  direction: ltr !important;
+}
+
+/* --- Checkbox ו-Radio --- */
+input[type="checkbox"],
+input[type="radio"] {
+  margin-left: 0.5rem !important;
+  margin-right: 0 !important;
+}
+
+/* --- מספרים: LTR --- */
+input[type="number"] {
+  direction: ltr !important;
+  text-align: center !important;
 }
