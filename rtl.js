@@ -72,8 +72,11 @@
 
   /* === Translate known UI text nodes using TreeWalker (efficient) === */
   function translateUITextNodes() {
+    var root = document.body || document.documentElement;
+    if (!root) return;
+
     var walker = document.createTreeWalker(
-      document.body || document.documentElement,
+      root,
       NodeFilter.SHOW_TEXT,
       null,
       false
@@ -101,24 +104,6 @@
     }
   }
 
-  /* === Move fixed left-side drawers to the right === */
-  function moveLikelyLeftDrawersToRight() {
-    var allElements = document.querySelectorAll('body > div, body > aside, body > nav');
-    for (var i = 0; i < allElements.length; i++) {
-      var el = allElements[i];
-      var style = getComputedStyle(el);
-      if (style.position === 'fixed') {
-        var left = style.left;
-        var right = style.right;
-        var width = parseFloat(style.width || '0');
-        if (left === '0px' && right === 'auto' && width > 220) {
-          el.style.left = 'auto';
-          el.style.right = '0';
-        }
-      }
-    }
-  }
-
   /* === Main apply function === */
   function applyRTL() {
     forceDocumentRTL();
@@ -127,13 +112,12 @@
     isolateEnglishFragments();
     translateUITextNodes();
     fixComposerText();
-    moveLikelyLeftDrawersToRight();
   }
 
   /* === Initial application === */
   applyRTL();
 
-  /* === MutationObserver — watch for DOM changes === */
+  /* === MutationObserver with debounce === */
   var debounceTimer = null;
   var observer = new MutationObserver(function () {
     if (debounceTimer) { clearTimeout(debounceTimer); }
