@@ -1,23 +1,22 @@
-/* =========================================
-   LibreChat RTL Smart Patch
-   shell = RTL
-   dynamic content = auto
-   technical fragments = isolated LTR
-   ========================================= */
+/* =========
+   LibreChat RTL Patch — Final Version
+   Based on optimized architecture with bug fixes applied
+   ========= */
 
-/* 1) App shell */
-html,
-body,
-#root {
-  direction: rtl !important;
+/* --- Base direction --- */
+html:lang(he),
+html:lang(he) body,
+html:lang(he) #root {
+  direction: rtl;
 }
 
 html[dir="rtl"],
-body[dir="rtl"] {
+html[dir="rtl"] body,
+html[dir="rtl"] #root {
   direction: rtl !important;
 }
 
-/* Main UI chrome */
+/* --- General text containers --- */
 body,
 main,
 nav,
@@ -25,68 +24,87 @@ aside,
 header,
 footer,
 section,
+article,
 form,
-[role="dialog"],
-[role="complementary"],
-[role="navigation"] {
-  direction: rtl !important;
-  text-align: right !important;
-}
-
-/* 2) Labels / controls / settings */
 label,
-button,
-[role="button"],
-[role="menuitem"],
-[role="tab"],
-[role="radio"],
-[role="checkbox"],
-[role="switch"],
-.setting-label,
-.form-label {
-  direction: rtl !important;
-  text-align: right !important;
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+span,
+div:not(pre):not(code) {
+  direction: rtl;
 }
 
-/* Rows with label + control */
-.setting-row,
-.toggle-row,
-.radio-row,
-[role="radiogroup"],
-[role="group"] {
-  direction: rtl !important;
-  text-align: right !important;
+/* --- Keep technical/code areas LTR --- */
+pre,
+code,
+pre *,
+code *,
+svg,
+svg *,
+kbd,
+samp,
+.font-mono,
+[class*="font-mono"],
+[class*="hljs"],
+[class*="language-"] {
+  direction: ltr !important;
+  text-align: left !important;
+  unicode-bidi: embed !important;
 }
 
-/* 3) Inputs */
-/* For Hebrew-first UX: align right, but let JS set dir=auto where useful */
+/* --- Inputs / composer / editable fields --- */
 input,
 textarea,
 select,
 [contenteditable="true"] {
+  direction: rtl !important;
   text-align: right !important;
+  unicode-bidi: plaintext !important;
 }
 
 input::placeholder,
 textarea::placeholder {
-  text-align: right !important;
   direction: rtl !important;
+  text-align: right !important;
+  unicode-bidi: plaintext !important;
 }
 
-/* 4) Dynamic content blocks: messages, titles, chat items */
+/* --- Message content --- */
 [data-message-id],
 [data-message-id] *,
 .prose,
 .prose *,
 .markdown,
-.markdown *,
-[data-testid*="conversation"],
-[data-testid*="chat"],
-[data-testid*="message"] {
+.markdown * {
+  direction: rtl;
+  text-align: right;
   unicode-bidi: plaintext;
 }
 
-/* 5) Lists in Hebrew blocks */
+/* But keep code inside messages LTR */
+[data-message-id] pre,
+[data-message-id] pre *,
+[data-message-id] code,
+[data-message-id] code *,
+.prose pre,
+.prose pre *,
+.prose code,
+.prose code *,
+.markdown pre,
+.markdown pre *,
+.markdown code,
+.markdown code * {
+  direction: ltr !important;
+  text-align: left !important;
+  unicode-bidi: embed !important;
+}
+
+/* --- Lists inside Hebrew content --- */
 .prose ul,
 .prose ol,
 .markdown ul,
@@ -97,15 +115,15 @@ textarea::placeholder {
   padding-left: 0 !important;
 }
 
-/* 6) Tables */
+/* --- Tables --- */
 table,
 thead,
 tbody,
 tr,
 th,
 td {
-  text-align: right !important;
   direction: rtl !important;
+  text-align: right !important;
 }
 
 th,
@@ -113,40 +131,7 @@ td {
   vertical-align: top;
 }
 
-/* 7) Technical/code zones stay LTR */
-pre,
-code,
-pre *,
-code *,
-kbd,
-samp,
-svg,
-svg *,
-.font-mono,
-[class*="font-mono"],
-[class*="hljs"],
-[class*="language-"],
-.bidi-ltr,
-[data-bidi="ltr"],
-[data-model-name],
-.model-name,
-.version-string,
-.api-token,
-.crm-token {
-  direction: ltr !important;
-  text-align: left !important;
-  unicode-bidi: isolate !important;
-}
-
-/* For block code use embed */
-pre,
-pre *,
-code,
-code * {
-  unicode-bidi: embed !important;
-}
-
-/* 8) Common alignment utilities only */
+/* --- Common utility flips --- */
 .text-left {
   text-align: right !important;
 }
@@ -165,11 +150,25 @@ code * {
   margin-left: auto !important;
 }
 
+.ml-0 { margin-left: 0 !important; margin-right: 0 !important; }
+.ml-1 { margin-left: 0 !important; margin-right: 0.25rem !important; }
+.ml-2 { margin-left: 0 !important; margin-right: 0.5rem !important; }
+.ml-3 { margin-left: 0 !important; margin-right: 0.75rem !important; }
+.ml-4 { margin-left: 0 !important; margin-right: 1rem !important; }
+
+.mr-0 { margin-right: 0 !important; margin-left: 0 !important; }
+.mr-1 { margin-right: 0 !important; margin-left: 0.25rem !important; }
+.mr-2 { margin-right: 0 !important; margin-left: 0.5rem !important; }
+.mr-3 { margin-right: 0 !important; margin-left: 0.75rem !important; }
+.mr-4 { margin-right: 0 !important; margin-left: 1rem !important; }
+
+.pl-0 { padding-left: 0 !important; padding-right: 0 !important; }
 .pl-1 { padding-left: 0 !important; padding-right: 0.25rem !important; }
 .pl-2 { padding-left: 0 !important; padding-right: 0.5rem !important; }
 .pl-3 { padding-left: 0 !important; padding-right: 0.75rem !important; }
 .pl-4 { padding-left: 0 !important; padding-right: 1rem !important; }
 
+.pr-0 { padding-right: 0 !important; padding-left: 0 !important; }
 .pr-1 { padding-right: 0 !important; padding-left: 0.25rem !important; }
 .pr-2 { padding-right: 0 !important; padding-left: 0.5rem !important; }
 .pr-3 { padding-right: 0 !important; padding-left: 0.75rem !important; }
@@ -185,18 +184,133 @@ code * {
   left: 0 !important;
 }
 
-/* 9) Do NOT globally reverse flex rows */
-/* only safe areas */
-.settings-actions,
-.settings-footer,
-.input-actions {
-  direction: rtl !important;
+.left-1 {
+  left: unset !important;
+  right: 0.25rem !important;
 }
 
-/* 10) Footer mixed strings */
-footer {
+.right-1 {
+  right: unset !important;
+  left: 0.25rem !important;
+}
+
+.left-2 {
+  left: unset !important;
+  right: 0.5rem !important;
+}
+
+.right-2 {
+  right: unset !important;
+  left: 0.5rem !important;
+}
+
+.float-left {
+  float: right !important;
+}
+
+.float-right {
+  float: left !important;
+}
+
+/* --- Flex/layout flips for common rows --- */
+.flex-row {
+  flex-direction: row-reverse !important;
+}
+
+.justify-start {
+  justify-content: flex-end !important;
+}
+
+.justify-end {
+  justify-content: flex-start !important;
+}
+
+/* --- Sidebar and chat list --- */
+aside,
+[role="complementary"],
+[data-panel],
+[data-sidebar] {
   direction: rtl !important;
   text-align: right !important;
+}
+
+/* --- Drawer/panel position flips --- */
+[data-side="left"] {
+  left: auto !important;
+  right: 0 !important;
+}
+
+[data-side="right"] {
+  right: auto !important;
+  left: 0 !important;
+}
+
+[data-side="left"][data-state="open"] {
+  transform: translateX(0) !important;
+}
+
+[data-side="right"][data-state="open"] {
+  transform: translateX(0) !important;
+}
+
+div[style*="left: 0px"][style*="position: fixed"] {
+  left: auto !important;
+  right: 0 !important;
+}
+
+div[style*="right: 0px"][style*="position: fixed"] {
+  right: auto !important;
+  left: 0 !important;
+}
+
+/* --- Settings rows / toggles / radios --- */
+.setting-row,
+.toggle-row,
+.radio-row,
+[role="radiogroup"],
+[role="group"] {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+label,
+[role="label"] {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  margin-left: 0 !important;
+  margin-right: 0.35rem !important;
+}
+
+/* --- Composer bottom area --- */
+form textarea,
+form [contenteditable="true"] {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+form button,
+form svg {
+  direction: ltr !important;
+}
+
+/* --- Mixed Hebrew + English fragments --- */
+.bidi-isolate,
+[data-model-name],
+[data-testid*="model"],
+.model-name {
+  direction: ltr !important;
+  unicode-bidi: isolate !important;
+  display: inline-block;
+}
+
+/* --- Footer / version strings --- */
+footer,
+footer * {
+  direction: rtl !important;
 }
 
 footer code,
@@ -205,4 +319,9 @@ footer [class*="version"] {
   direction: ltr !important;
   unicode-bidi: isolate !important;
   display: inline-block;
+}
+
+/* --- Scrollbars stay normal --- */
+::-webkit-scrollbar {
+  direction: ltr;
 }
