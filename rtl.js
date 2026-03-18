@@ -2,7 +2,7 @@
   'use strict';
 
   /* === Hebrew UI text replacements === */
-  var HEBREW_UI_REPLACEMENTS = new Map([
+  var HEBREW_UI = new Map([
     ['Chats', '\u05E9\u05D9\u05D7\u05D5\u05EA'],
     ['New Chat', '\u05E6\u05F3\u05D0\u05D8 \u05D7\u05D3\u05E9'],
     ['Search messages', '\u05D7\u05D9\u05E4\u05D5\u05E9 \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA'],
@@ -17,10 +17,8 @@
     ['Model', '\u05DE\u05D5\u05D3\u05DC']
   ]);
 
-  /* === Selectors for elements that must stay LTR === */
+  /* === Selectors === */
   var LTR_SELECTORS = 'pre, code, svg, .font-mono, [class*="font-mono"], [class*="hljs"], [class*="language-"]';
-
-  /* === Selectors for English fragments needing bidi isolation === */
   var ISOLATE_SELECTORS = '[data-model-name], [data-testid*="model"], .model-name';
 
   /* === Force document-level RTL === */
@@ -32,7 +30,7 @@
     }
   }
 
-  /* === Force RTL on all input fields === */
+  /* === Force RTL on input fields === */
   function forceRTLOnInputs() {
     var inputs = document.querySelectorAll('input, textarea, [contenteditable="true"], select');
     for (var i = 0; i < inputs.length; i++) {
@@ -56,7 +54,7 @@
     }
   }
 
-  /* === Isolate English fragments (model names etc.) === */
+  /* === Isolate English fragments === */
   function isolateEnglishFragments() {
     var elements = document.querySelectorAll(ISOLATE_SELECTORS);
     for (var i = 0; i < elements.length; i++) {
@@ -70,28 +68,21 @@
     }
   }
 
-  /* === Translate known UI text nodes using TreeWalker (efficient) === */
+  /* === Translate UI text using TreeWalker === */
   function translateUITextNodes() {
     var root = document.body || document.documentElement;
     if (!root) return;
-
-    var walker = document.createTreeWalker(
-      root,
-      NodeFilter.SHOW_TEXT,
-      null,
-      false
-    );
-
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
     var node;
     while ((node = walker.nextNode())) {
       var text = node.nodeValue.trim();
-      if (text && HEBREW_UI_REPLACEMENTS.has(text)) {
-        node.nodeValue = HEBREW_UI_REPLACEMENTS.get(text);
+      if (text && HEBREW_UI.has(text)) {
+        node.nodeValue = HEBREW_UI.get(text);
       }
     }
   }
 
-  /* === Fix composer textarea specifically === */
+  /* === Fix composer textarea === */
   function fixComposerText() {
     var composers = document.querySelectorAll('textarea, [contenteditable="true"]');
     for (var i = 0; i < composers.length; i++) {
@@ -104,6 +95,27 @@
     }
   }
 
+  /* === Fix CRM/MRC BiDi issue in landing title === */
+  function fixLandingCRMTitle() {
+    var titles = document.querySelectorAll('.landing-title, .landing-subtitle, h1, h2');
+    for (var i = 0; i < titles.length; i++) {
+      var el = titles[i];
+      var text = (el.textContent || '').trim();
+      if (!text) continue;
+
+      /* If BiDi flipped CRM to MRC, fix it */
+      var fixed = text.replace(/\bMRC\b/g, 'CRM');
+
+      /* Isolate Latin acronyms so they dont flip */
+      if (fixed !== text || /\b(CRM|API|PDF|AI|MCP|RTL|LTR)\b/.test(fixed)) {
+        var html = fixed.replace(/\b(CRM|API|PDF|AI|MCP|RTL|LTR)\b/g, '<bdi dir="ltr">$1</bdi>');
+        if (el.innerHTML !== html) {
+          el.innerHTML = html;
+        }
+      }
+    }
+  }
+
   /* === Main apply function === */
   function applyRTL() {
     forceDocumentRTL();
@@ -112,6 +124,7 @@
     isolateEnglishFragments();
     translateUITextNodes();
     fixComposerText();
+    fixLandingCRMTitle();
   }
 
   /* === Initial application === */
@@ -132,7 +145,7 @@
     attributeFilter: ['dir', 'lang']
   });
 
-  /* === Re-apply on load events === */
+  /* === Re-apply on load === */
   window.addEventListener('load', applyRTL);
   document.addEventListener('readystatechange', applyRTL);
 })();
