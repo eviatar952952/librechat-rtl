@@ -1,45 +1,54 @@
-/* =========
-   LibreChat RTL Patch — Final Version
-   Based on optimized architecture with bug fixes applied
-   ========= */
+/* =========================================
+   LibreChat RTL - focused safe patch
+   ========================================= */
 
-/* --- Base direction --- */
-html:lang(he),
-html:lang(he) body,
-html:lang(he) #root {
-  direction: rtl;
-}
-
-html[dir="rtl"],
-html[dir="rtl"] body,
-html[dir="rtl"] #root {
+/* ---------- בסיס ---------- */
+html,
+body,
+#root {
   direction: rtl !important;
 }
 
-/* --- General text containers --- */
-body,
-main,
-nav,
-aside,
-header,
-footer,
-section,
-article,
-form,
-label,
-p,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-span,
-div:not(pre):not(code) {
-  direction: rtl;
+body {
+  text-align: right !important;
 }
 
-/* --- Keep technical/code areas LTR --- */
+/* ---------- טפסים ושדות ---------- */
+input,
+textarea,
+select,
+[contenteditable="true"] {
+  text-align: right !important;
+  unicode-bidi: plaintext !important;
+}
+
+input:not([type="email"]):not([type="url"]):not([type="number"]),
+select {
+  direction: rtl !important;
+}
+
+textarea,
+[contenteditable="true"] {
+  direction: auto !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  direction: rtl !important;
+  text-align: right !important;
+  opacity: 0.95 !important;
+}
+
+/* ---------- תוכן הודעות ---------- */
+[data-message-id],
+.prose,
+.markdown {
+  direction: rtl !important;
+  text-align: right !important;
+  unicode-bidi: plaintext !important;
+}
+
+/* ---------- קוד תמיד LTR ---------- */
 pre,
 code,
 pre *,
@@ -57,260 +66,183 @@ samp,
   unicode-bidi: embed !important;
 }
 
-/* --- Inputs / composer / editable fields --- */
-input,
-textarea,
-select,
-[contenteditable="true"] {
+/* =========================================
+   תיקון ממוקד לפאנל סוכנים / מודלים / תפריטים
+   ========================================= */
+
+/* אל תזיז את הפאנל עצמו - רק סדר RTL פנימי */
+aside.navigator,
+[data-radix-popper-content-wrapper],
+[role="dialog"] {
+  direction: rtl !important;
+}
+
+/* מניעת חיתוך בשדות חיפוש */
+aside.navigator input,
+[data-radix-popper-content-wrapper] input,
+[role="dialog"] input {
+  box-sizing: border-box !important;
+  max-inline-size: 100% !important;
+  min-inline-size: 0 !important;
+}
+
+/* שדה חיפוש: שלא ייחתך "חפש מודל" / "חפש סוכן" */
+aside.navigator input[placeholder*="חפש"],
+aside.navigator input[type="search"],
+aside.navigator input[type="text"],
+[data-radix-popper-content-wrapper] input[placeholder*="חפש"],
+[data-radix-popper-content-wrapper] input[type="search"],
+[data-radix-popper-content-wrapper] input[type="text"],
+[role="dialog"] input[placeholder*="חפש"],
+[role="dialog"] input[type="search"],
+[role="dialog"] input[type="text"] {
   direction: rtl !important;
   text-align: right !important;
-  unicode-bidi: plaintext !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  padding-inline-start: 0.75rem !important;
+  padding-inline-end: 0.75rem !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  letter-spacing: normal !important;
 }
 
-input::placeholder,
-textarea::placeholder {
+/* ה-placeholder עצמו */
+aside.navigator input[placeholder*="חפש"]::placeholder,
+aside.navigator input[type="search"]::placeholder,
+aside.navigator input[type="text"]::placeholder,
+[data-radix-popper-content-wrapper] input[placeholder*="חפש"]::placeholder,
+[data-radix-popper-content-wrapper] input[type="search"]::placeholder,
+[data-radix-popper-content-wrapper] input[type="text"]::placeholder,
+[role="dialog"] input[placeholder*="חפש"]::placeholder,
+[role="dialog"] input[type="search"]::placeholder,
+[role="dialog"] input[type="text"]::placeholder {
   direction: rtl !important;
   text-align: right !important;
-  unicode-bidi: plaintext !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
 }
 
-/* --- Message content --- */
-[data-message-id],
-[data-message-id] *,
-.prose,
-.prose *,
-.markdown,
-.markdown * {
-  direction: rtl;
-  text-align: right;
-  unicode-bidi: plaintext;
+/* עוזר כששדה החיפוש יושב בתוך flex/relative */
+aside.navigator .relative,
+aside.navigator form,
+[data-radix-popper-content-wrapper] .relative,
+[data-radix-popper-content-wrapper] form,
+[role="dialog"] .relative,
+[role="dialog"] form {
+  min-width: 0 !important;
+  max-width: 100% !important;
 }
 
-/* But keep code inside messages LTR */
-[data-message-id] pre,
-[data-message-id] pre *,
-[data-message-id] code,
-[data-message-id] code *,
-.prose pre,
-.prose pre *,
-.prose code,
-.prose code *,
-.markdown pre,
-.markdown pre *,
-.markdown code,
-.markdown code * {
-  direction: ltr !important;
-  text-align: left !important;
-  unicode-bidi: embed !important;
+/* כפתור סגירה - רק להפוך לגלוי וקל ללחיצה */
+aside.navigator {
+  position: relative !important;
 }
 
-/* --- Lists inside Hebrew content --- */
-.prose ul,
-.prose ol,
-.markdown ul,
-.markdown ol,
-[data-message-id] ul,
-[data-message-id] ol {
-  padding-right: 1.25rem !important;
-  padding-left: 0 !important;
+aside.navigator button.navigator-close-button,
+aside.navigator button[aria-label*="Close"],
+aside.navigator button[title*="Close"],
+aside.navigator button[aria-label*="סגור"],
+aside.navigator button[title*="סגור"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: absolute !important;
+  inset-inline-start: 8px !important;
+  inset-block-start: 8px !important;
+  z-index: 60 !important;
 }
 
-/* --- Tables --- */
-table,
-thead,
-tbody,
-tr,
-th,
-td {
-  direction: rtl !important;
-  text-align: right !important;
-}
-
-th,
-td {
-  vertical-align: top;
-}
-
-/* --- Common utility flips --- */
-.text-left {
-  text-align: right !important;
-}
-
-.text-right {
-  text-align: left !important;
-}
-
-.ml-auto {
-  margin-left: unset !important;
-  margin-right: auto !important;
-}
-
-.mr-auto {
-  margin-right: unset !important;
-  margin-left: auto !important;
-}
-
-.ml-0 { margin-left: 0 !important; margin-right: 0 !important; }
-.ml-1 { margin-left: 0 !important; margin-right: 0.25rem !important; }
-.ml-2 { margin-left: 0 !important; margin-right: 0.5rem !important; }
-.ml-3 { margin-left: 0 !important; margin-right: 0.75rem !important; }
-.ml-4 { margin-left: 0 !important; margin-right: 1rem !important; }
-
-.mr-0 { margin-right: 0 !important; margin-left: 0 !important; }
-.mr-1 { margin-right: 0 !important; margin-left: 0.25rem !important; }
-.mr-2 { margin-right: 0 !important; margin-left: 0.5rem !important; }
-.mr-3 { margin-right: 0 !important; margin-left: 0.75rem !important; }
-.mr-4 { margin-right: 0 !important; margin-left: 1rem !important; }
-
-.pl-0 { padding-left: 0 !important; padding-right: 0 !important; }
-.pl-1 { padding-left: 0 !important; padding-right: 0.25rem !important; }
-.pl-2 { padding-left: 0 !important; padding-right: 0.5rem !important; }
-.pl-3 { padding-left: 0 !important; padding-right: 0.75rem !important; }
-.pl-4 { padding-left: 0 !important; padding-right: 1rem !important; }
-
-.pr-0 { padding-right: 0 !important; padding-left: 0 !important; }
-.pr-1 { padding-right: 0 !important; padding-left: 0.25rem !important; }
-.pr-2 { padding-right: 0 !important; padding-left: 0.5rem !important; }
-.pr-3 { padding-right: 0 !important; padding-left: 0.75rem !important; }
-.pr-4 { padding-right: 0 !important; padding-left: 1rem !important; }
-
-.left-0 {
-  left: unset !important;
-  right: 0 !important;
-}
-
-.right-0 {
-  right: unset !important;
-  left: 0 !important;
-}
-
-.left-1 {
-  left: unset !important;
-  right: 0.25rem !important;
-}
-
-.right-1 {
-  right: unset !important;
-  left: 0.25rem !important;
-}
-
-.left-2 {
-  left: unset !important;
-  right: 0.5rem !important;
-}
-
-.right-2 {
-  right: unset !important;
-  left: 0.5rem !important;
-}
-
-.float-left {
-  float: right !important;
-}
-
-.float-right {
-  float: left !important;
-}
-
-/* --- Flex/layout flips for common rows --- */
-.flex-row {
-  flex-direction: row-reverse !important;
-}
-
-.justify-start {
-  justify-content: flex-end !important;
-}
-
-.justify-end {
-  justify-content: flex-start !important;
-}
-
-/* --- Sidebar and chat list --- */
-aside,
-[role="complementary"],
-[data-panel],
-[data-sidebar] {
+/* רשימות בפאנל */
+aside.navigator button,
+aside.navigator li,
+aside.navigator [role="button"],
+aside.navigator [role="menuitem"],
+aside.navigator [role="option"],
+[data-radix-popper-content-wrapper] button,
+[data-radix-popper-content-wrapper] li,
+[data-radix-popper-content-wrapper] [role="button"],
+[data-radix-popper-content-wrapper] [role="menuitem"],
+[data-radix-popper-content-wrapper] [role="option"] {
   direction: rtl !important;
   text-align: right !important;
 }
 
-/* --- Drawer/panel position flips --- */
-[data-side="left"] {
-  left: auto !important;
-  right: 0 !important;
+/* =========================================
+   תיקון חצים (chevrons) בתוך פאנלים/תפריטים RTL
+   ========================================= */
+
+/* חץ ימינה → להפוך לשמאל בפאנל RTL */
+html[dir="rtl"] aside.navigator svg.lucide-chevron-right,
+html[dir="rtl"] aside.navigator [data-lucide="chevron-right"],
+html[dir="rtl"] [data-radix-popper-content-wrapper] svg.lucide-chevron-right,
+html[dir="rtl"] [data-radix-popper-content-wrapper] [data-lucide="chevron-right"],
+html[dir="rtl"] [role="dialog"] svg.lucide-chevron-right,
+html[dir="rtl"] [role="dialog"] [data-lucide="chevron-right"] {
+  transform: scaleX(-1) !important;
+  transform-origin: center !important;
 }
 
-[data-side="right"] {
-  right: auto !important;
-  left: 0 !important;
+/* אם אצלך יש דווקא chevron-left במקום הלא נכון */
+html[dir="rtl"] aside.navigator svg.lucide-chevron-left.rtl-flip,
+html[dir="rtl"] aside.navigator [data-lucide="chevron-left"].rtl-flip,
+html[dir="rtl"] [data-radix-popper-content-wrapper] svg.lucide-chevron-left.rtl-flip,
+html[dir="rtl"] [data-radix-popper-content-wrapper] [data-lucide="chevron-left"].rtl-flip {
+  transform: scaleX(-1) !important;
+  transform-origin: center !important;
 }
 
-[data-side="left"][data-state="open"] {
-  transform: translateX(0) !important;
+/* =========================================
+   ברכת פתיחה / landing - להחזיר למרכז
+   ========================================= */
+
+.landing-container,
+.landing-header {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
 }
 
-[data-side="right"][data-state="open"] {
-  transform: translateX(0) !important;
+.landing-header,
+.landing-title,
+.landing-subtitle {
+  direction: rtl !important;
+  text-align: center !important;
+  margin-inline: auto !important;
 }
 
-div[style*="left: 0px"][style*="position: fixed"] {
-  left: auto !important;
-  right: 0 !important;
+.landing-title,
+.landing-subtitle {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-wrap: balance !important;
+  max-inline-size: min(90vw, 760px) !important;
 }
 
-div[style*="right: 0px"][style*="position: fixed"] {
-  right: auto !important;
-  left: 0 !important;
+/* קצת הגנה על כותרות פתיחה כלליות */
+main .landing-title,
+main .landing-subtitle,
+main h1.landing-title,
+main h2.landing-subtitle {
+  text-align: center !important;
+  margin-inline: auto !important;
 }
 
-/* --- Settings rows / toggles / radios --- */
-.setting-row,
-.toggle-row,
-.radio-row,
-[role="radiogroup"],
-[role="group"] {
+/* =========================================
+   חריגים חשובים
+   ========================================= */
+
+/* לא להפוך flex-row גלובלית */
+/* לא לגעת ב-left/right גלובליים */
+/* לא לגעת ב-header/main/aside באופן גורף */
+
+/* Footer עם טקסט טכני */
+footer {
   direction: rtl !important;
   text-align: right !important;
-}
-
-label,
-[role="label"] {
-  direction: rtl !important;
-  text-align: right !important;
-}
-
-input[type="checkbox"],
-input[type="radio"] {
-  margin-left: 0 !important;
-  margin-right: 0.35rem !important;
-}
-
-/* --- Composer bottom area --- */
-form textarea,
-form [contenteditable="true"] {
-  direction: rtl !important;
-  text-align: right !important;
-}
-
-form button,
-form svg {
-  direction: ltr !important;
-}
-
-/* --- Mixed Hebrew + English fragments --- */
-.bidi-isolate,
-[data-model-name],
-[data-testid*="model"],
-.model-name {
-  direction: ltr !important;
-  unicode-bidi: isolate !important;
-  display: inline-block;
-}
-
-/* --- Footer / version strings --- */
-footer,
-footer * {
-  direction: rtl !important;
 }
 
 footer code,
@@ -319,9 +251,4 @@ footer [class*="version"] {
   direction: ltr !important;
   unicode-bidi: isolate !important;
   display: inline-block;
-}
-
-/* --- Scrollbars stay normal --- */
-::-webkit-scrollbar {
-  direction: ltr;
 }
